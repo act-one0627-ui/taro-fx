@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Taro FX" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0b1220" />
+
+  <title>FX分析アプリ - Taro Prototype</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #121a2b;
+      --panel-2: #18233a;
+      --text: #eef4ff;
+      --muted: #9fb0cf;
+      --line: #2a3757;
+      --accent: #4f8cff;
+      --good: #3ecf8e;
+      --bad: #ff6b6b;
+      --warn: #ffd166;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #09101b 0%, #0f1727 100%);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .top {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .panel {
+      background: rgba(18, 26, 43, 0.95);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+    }
+    .title {
+      font-size: 24px;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 10px 0 4px;
+    }
+    .badge {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+    }
+    .right-col {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #0e1626;
+      color: var(--text);
+      padding: 11px 12px;
+      font-size: 14px;
+    }
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+    button {
+      background: linear-gradient(180deg, #5e97ff 0%, #3f7ff7 100%);
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #162036;
+      border: 1px solid var(--line);
+    }
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .small-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0 4px;
+    }
+    .small-card {
+      background: #0d1524;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .small-card .k {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .small-card .v {
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .chart-wrap { height: 620px; }
+    #tv_chart { height: 100%; }
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .fib-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .fib-item {
+      padding: 10px;
+      background: #0d1524;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-size: 13px;
+    }
+    .fib-item span { color: var(--muted); display: block; font-size: 12px; margin-bottom: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    .profit { color: var(--good); font-weight: 700; }
+    .loss { color: var(--bad); font-weight: 700; }
+    .warn { color: var(--warn); font-weight: 700; }
+    .pill {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      background: #0e1626;
+      color: var(--muted);
+    }
+    .foot {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .calendar-controls {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .dow {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 4px 0;
+    }
+    .day-cell {
+      min-height: 92px;
+      background: #0d1524;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .day-cell.empty {
+      opacity: 0.35;
+    }
+    .day-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+    }
+    .day-num {
+      font-weight: 700;
+    }
+    .day-balance {
+      font-size: 15px;
+      font-weight: 800;
+      text-align: right;
+      word-break: break-word;
+    }
+    .day-note {
+      color: var(--muted);
+      font-size: 11px;
+      text-align: right;
+      margin-top: 4px;
+    }
+
+
+    html, body {
+      min-height: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
+    body {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .wrap {
+      padding-left: max(14px, env(safe-area-inset-left, 0px));
+      padding-right: max(14px, env(safe-area-inset-right, 0px));
+      padding-top: max(16px, env(safe-area-inset-top, 0px));
+      padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    }
+    .panel {
+      backdrop-filter: blur(10px);
+    }
+    .sticky-summary {
+      position: sticky;
+      top: 8px;
+      z-index: 5;
+    }
+    .compact-note {
+      display: none;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .calendar-grid {
+      min-width: 0;
+    }
+    .day-cell {
+      min-width: 0;
+    }
+    @media (min-width: 1081px) {
+      .right-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .app-hero {
+      background: linear-gradient(135deg, rgba(79,140,255,0.18), rgba(62,207,142,0.10));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.20);
+    }
+    .app-hero-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .app-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #5e97ff 0%, #2f6fe8 100%);
+      display: grid;
+      place-items: center;
+      font-size: 30px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 8px 20px rgba(0,0,0,0.24);
+    }
+    .app-hero-title {
+      font-size: 26px;
+      font-weight: 900;
+      margin: 0 0 4px;
+    }
+    .app-hero-sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0;
+    }
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .quick-card {
+      background: rgba(13,21,36,0.92);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .quick-card .qk {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .quick-card .qv {
+      font-weight: 800;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+    .home-guide {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .section-anchor {
+      scroll-margin-top: 14px;
+    }
+    .floating-nav {
+      position: sticky;
+      top: 8px;
+      z-index: 8;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .floating-nav button {
+      width: auto;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      background: rgba(18,26,43,0.96);
+      border: 1px solid var(--line);
+    }
+    @media (max-width: 820px) {
+      .quick-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .app-hero-title {
+        font-size: 22px;
+      }
+    }
+    @media (max-width: 640px) {
+      .app-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        font-size: 26px;
+      }
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+      .floating-nav {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 4px;
+      }
+      .floating-nav button {
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .wrap {
+        max-width: 860px;
+      }
+      .chart-wrap {
+        height: 420px;
+      }
+      .small-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .calendar-controls {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+    }
+    @media (max-width: 820px) {
+      .title {
+        font-size: 22px;
+      }
+      .section-title {
+        font-size: 17px;
+      }
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .small-cards {
+        grid-template-columns: 1fr 1fr;
+      }
+      .chart-wrap {
+        height: 360px;
+      }
+      .calendar-controls {
+        grid-template-columns: 1fr 1fr;
+      }
+      .calendar-controls > :first-child {
+        grid-column: 1 / -1;
+      }
+      .day-cell {
+        min-height: 84px;
+        padding: 7px;
+      }
+      .day-balance {
+        font-size: 13px;
+      }
+    }
+    @media (max-width: 640px) {
+      .wrap {
+        padding: 12px;
+      }
+      .panel {
+        border-radius: 16px;
+        padding: 14px;
+      }
+      .title {
+        font-size: 20px;
+      }
+      .sub {
+        font-size: 12px;
+      }
+      .badge-row {
+        gap: 6px;
+      }
+      .badge {
+        font-size: 11px;
+        padding: 5px 8px;
+      }
+      .form-grid,
+      .btn-row,
+      .small-cards,
+      .fib-grid {
+        grid-template-columns: 1fr;
+      }
+      .chart-wrap {
+        height: 300px;
+      }
+      input, select, textarea, button {
+        font-size: 16px;
+        padding: 12px;
+      }
+      .sticky-summary {
+        position: static;
+      }
+      .compact-note {
+        display: block;
+      }
+      .calendar-grid {
+        gap: 6px;
+      }
+      .dow {
+        font-size: 11px;
+      }
+      .day-cell {
+        min-height: 76px;
+        border-radius: 12px;
+      }
+      .day-top {
+        font-size: 11px;
+      }
+      .day-balance {
+        font-size: 12px;
+      }
+      .day-note {
+        font-size: 10px;
+      }
+      th, td {
+        padding: 8px 6px;
+        font-size: 12px;
+      }
+    }
+    @media (min-width: 900px) and (max-width: 1366px) {
+      .grid {
+        grid-template-columns: 1.15fr 0.95fr;
+      }
+      .chart-wrap {
+        height: 540px;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .top, .grid { grid-template-columns: 1fr; }
+      .chart-wrap { height: 480px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="app-hero">
+      <div class="app-hero-head">
+        <div class="app-brand">
+          <div class="app-icon">📈</div>
+          <div>
+            <h1 class="app-hero-title">Taro FX</h1>
+            <p class="app-hero-sub">まさ専用・ドル円分析アプリ風ホーム画面</p>
+          </div>
+        </div>
+        <div class="badge-row" style="margin:0;">
+          <div class="badge">USD/JPY</div>
+          <div class="badge">Signal</div>
+          <div class="badge">Calendar</div>
+          <div class="badge">iPad Ready</div>
+        </div>
+      </div>
+      <div class="quick-actions">
+        <div class="quick-card"><div class="qk">すぐ見る</div><div class="qv">チャート + タロサイン</div></div>
+        <div class="quick-card"><div class="qk">判断軸</div><div class="qv">4時間 → 1時間 → 5分 → 1分</div></div>
+        <div class="quick-card"><div class="qk">記録</div><div class="qv">R管理 + 損益金額 + 履歴</div></div>
+        <div class="quick-card"><div class="qk">振り返り</div><div class="qv">残高カレンダーで月次確認</div></div>
+      </div>
+      <div class="home-guide">Safariの共有から「ホーム画面に追加」を使うと、かなりアプリっぽく開ける。</div>
+    </div>
+
+    <div class="floating-nav">
+      <button type="button" onclick="jumpToSection('chartSection')">チャート</button>
+      <button type="button" onclick="jumpToSection('analysisSection')">分析シート</button>
+      <button type="button" onclick="jumpToSection('historySection')">履歴</button>
+      <button type="button" onclick="jumpToSection('calendarSection')">残高カレンダー</button>
+    </div>
+    <div class="top">
+      <div class="panel sticky-summary">
+        <h1 class="title">FX分析アプリ</h1>
+        <div class="sub">ドル円のチャート確認、シナリオ保存、エントリー管理、残高カレンダーまで使えるiPhone / iPad向け最適化版。</div>
+        <div class="badge-row">
+          <div class="badge">USD/JPY</div>
+          <div class="badge">TradingViewチャート</div>
+          <div class="badge">ローカル保存</div>
+          <div class="badge">フィボナッチ計算</div>
+          <div class="badge">トレード記録</div>
+          <div class="badge">タロサイン</div>
+          <div class="badge">勝率集計</div>
+          <div class="badge">アラートメモ</div>
+          <div class="badge">月間残高カレンダー</div>
+          <div class="badge">iPhone / iPad 最適化</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="section-title">今日の使い方</div>
+        <div class="sub">1. チャートを見る → 2. シナリオを書く → 3. エントリー候補を保存 → 4. 結果を履歴に残す</div>
+        <div class="small-cards">
+          <div class="small-card"><div class="k">判定</div><div class="v" id="statusView">様子見</div></div>
+          <div class="small-card"><div class="k">想定R</div><div class="v" id="rrView">-</div></div>
+          <div class="small-card"><div class="k">pips差</div><div class="v" id="pipView">-</div></div>
+        </div>
+        <div class="compact-note">iPhoneは縦持ち、iPadは横持ちが見やすいように調整済み。</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="panel chart-wrap section-anchor" id="chartSection">
+        <div id="tv_chart"></div>
+        <div class="foot">iPhoneは縦でも使えるけど、iPadは横向きだとチャートと入力欄がかなり見やすい。</div>
+      </div>
+
+      <div class="right-col">
+        <div class="panel section-anchor" id="analysisSection">
+          <div class="section-title">分析シート</div>
+          <div class="form-grid">
+            <div>
+              <label>通貨ペア</label>
+              <select id="pair">
+                <option value="OANDA:USDJPY" selected>USD/JPY 専用</option>
+              </select>
+            </div>
+            <div>
+              <label>時間足</label>
+              <select id="interval">
+                <option value="1" selected>1分足</option>
+                <option value="5">5分足</option>
+                <option value="60">1時間足</option>
+                <option value="240">4時間足</option>
+              </select>
+            </div>
+            <div>
+              <label>シナリオ判定</label>
+              <select id="status">
+                <option>様子見</option>
+                <option>戻り待ち</option>
+                <option>押し目待ち</option>
+                <option>追っかけ注意</option>
+                <option>逆張り警戒</option>
+                <option>トレンド継続</option>
+              </select>
+            </div>
+            <div>
+              <label>方向</label>
+              <select id="direction">
+                <option>買い目線</option>
+                <option selected>売り目線</option>
+                <option>中立</option>
+              </select>
+            </div>
+            <div>
+              <label>エントリー</label>
+              <input id="entry" type="number" step="0.001" placeholder="例 148.250" />
+            </div>
+            <div>
+              <label>損切り</label>
+              <input id="sl" type="number" step="0.001" placeholder="例 148.500" />
+            </div>
+            <div>
+              <label>利確</label>
+              <input id="tp" type="number" step="0.001" placeholder="例 147.800" />
+            </div>
+            <div>
+              <label>ロット</label>
+              <input id="lot" type="number" step="0.01" value="0.10" />
+            </div>
+          </div>
+          <div style="margin-top:12px;">
+            <label>今日の戦略メモ</label>
+            <textarea id="memo" placeholder="例：4時間足は上昇中。1時間足で戻り確認。5分足で形待ち、1分足でエントリー。追っかけはしない。"></textarea>
+          </div>
+
+          <div class="form-grid" style="margin-top:12px;">
+            <div>
+              <label>アラート価格①</label>
+              <input id="alert1" type="number" step="0.001" placeholder="例 149.200" />
+            </div>
+            <div>
+              <label>アラート価格②</label>
+              <input id="alert2" type="number" step="0.001" placeholder="例 148.850" />
+            </div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <label>エントリーチェック</label>
+            <div class="fib-grid">
+              <label class="fib-item"><input type="checkbox" id="ckTrend" /> 4時間足の方向一致</label>
+              <label class="fib-item"><input type="checkbox" id="ckLevel" /> 1時間足の水平線/フィボ付近</label>
+              <label class="fib-item"><input type="checkbox" id="ckShape" /> 5分足で戻り/押しの形</label>
+              <label class="fib-item"><input type="checkbox" id="ckTiming" /> 1分足でタイミング確認</label>
+              <label class="fib-item"><input type="checkbox" id="ckBand" /> ボリンジャー反応あり</label>
+              <label class="fib-item"><input type="checkbox" id="ckRsi" /> RSIが目線に沿う</label>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button id="saveScenario">シナリオ保存</button>
+            <button class="secondary" id="reloadChart">チャート更新</button>
+          </div>
+          <div class="foot">保存先はこのブラウザ内です。ページを開き直しても保持されます。</div>
+        </div>
+
+        <div class="panel">
+          <div class="section-title">フィボナッチ目安</div>
+          <div class="form-grid">
+            <div>
+              <label>高値</label>
+              <input id="swingHigh" type="number" step="0.001" placeholder="例 149.200" />
+            </div>
+            <div>
+              <label>安値</label>
+              <input id="swingLow" type="number" step="0.001" placeholder="例 147.900" />
+            </div>
+          </div>
+          <div class="btn-row">
+            <button id="calcFib">フィボ計算</button>
+            <button class="secondary" id="clearFib">クリア</button>
+          </div>
+          <div class="fib-grid" id="fibResults"></div>
+        </div>
+
+        <div class="panel section-anchor" id="historySection">
+          <div class="section-title">トレード履歴</div>
+          <div class="small-cards" style="grid-template-columns:repeat(3,minmax(0,1fr)); margin-top:0; margin-bottom:12px;">
+            <div class="small-card"><div class="k">総件数</div><div class="v" id="tradeCountView">0</div></div>
+            <div class="small-card"><div class="k">勝率</div><div class="v" id="winRateView">0%</div></div>
+            <div class="small-card"><div class="k">平均R</div><div class="v" id="avgRView">0.00R</div></div>
+          </div>
+          <div class="btn-row" style="margin-top:0; margin-bottom:10px;">
+            <button id="addTrade">履歴に追加</button>
+            <button class="secondary" id="clearTrades">履歴を全消去</button>
+          </div>
+          <div style="overflow:auto; max-height:280px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>日時</th>
+                  <th>内容</th>
+                  <th>R</th>
+                  <th>メモ</th>
+                </tr>
+              </thead>
+              <tbody id="tradeTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel section-anchor" id="calendarSection">
+          <div class="section-title">残高カレンダー</div>
+          <div class="calendar-controls">
+            <div>
+              <label>開始残高</label>
+              <input id="startingBalance" type="number" step="1" placeholder="例 100000" />
+            </div>
+            <button class="secondary" id="prevMonth">前月</button>
+            <button class="secondary" id="nextMonth">次月</button>
+          </div>
+          <div class="small-cards" style="grid-template-columns:repeat(3,minmax(0,1fr)); margin-top:0; margin-bottom:12px;">
+            <div class="small-card"><div class="k">表示月</div><div class="v" id="monthLabelView">-</div></div>
+            <div class="small-card"><div class="k">月末残高</div><div class="v" id="monthEndBalanceView">-</div></div>
+            <div class="small-card"><div class="k">月間増減</div><div class="v" id="monthDeltaView">-</div></div>
+          </div>
+          <div class="calendar-grid" id="balanceCalendar"></div>
+          <div class="foot">履歴に入れた結果Rを日ごとの収支に変換して、残高の推移をカレンダー表示します。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let widget;
+    let calendarDate = new Date();
+
+    function jumpToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function createWidget() {
+      const pair = $('pair').value;
+      const interval = $('interval').value;
+      $('tv_chart').innerHTML = '';
+      widget = new TradingView.widget({
+        width: '100%',
+        height: '100%',
+        symbol: pair,
+        interval: interval,
+        timezone: 'Asia/Tokyo',
+        theme: 'dark',
+        style: '1',
+        locale: 'ja',
+        toolbar_bg: '#0b1220',
+        hide_side_toolbar: false,
+        enable_publishing: false,
+        allow_symbol_change: true,
+        container_id: 'tv_chart',
+        studies: ['BB@tv-basicstudies', 'RSI@tv-basicstudies']
+      });
+    }
+
+    function numberOrNull(v) {
+      return v === '' ? null : Number(v);
+    }
+
+    function calcMetrics() {
+      const entry = numberOrNull($('entry').value);
+      const sl = numberOrNull($('sl').value);
+      const tp = numberOrNull($('tp').value);
+      const status = $('status').value;
+      $('statusView').textContent = status;
+
+      if (entry == null || sl == null || tp == null) {
+        $('rrView').textContent = '-';
+        $('pipView').textContent = '-';
+        updateSignal(null);
+        return;
+      }
+      const risk = Math.abs(entry - sl);
+      const reward = Math.abs(entry - tp);
+      const rr = risk > 0 ? (reward / risk).toFixed(2) : '-';
+      const pips = (risk * 100).toFixed(1);
+      $('rrView').textContent = rr === '-' ? '-' : rr + 'R';
+      $('pipView').textContent = pips;
+      updateSignal(Number(rr));
+    }
+
+    function updateSignal(rrNum) {
+      const status = $('status').value;
+      const direction = $('direction').value;
+      const signalView = $('signalView');
+      const signalReason = $('signalReason');
+      const checks = ['ckTrend','ckLevel','ckShape','ckTiming','ckBand','ckRsi'].filter(id => $(id).checked).length;
+      const alert1 = numberOrNull($('alert1').value);
+      const alert2 = numberOrNull($('alert2').value);
+      const entry = numberOrNull($('entry').value);
+
+      let signal = '様子見';
+      let reason = '条件が揃うまで待機';
+      let cls = '';
+
+      const nearAlert = (entry != null) && (
+        (alert1 != null && Math.abs(entry - alert1) <= 0.050) ||
+        (alert2 != null && Math.abs(entry - alert2) <= 0.050)
+      );
+
+      if (status === '追っかけ注意') {
+        signal = '追っかけ禁止';
+        reason = '飛び乗りより押し・戻り待ち';
+        cls = 'warn';
+      } else if (status === '逆張り警戒') {
+        signal = '逆張り注意';
+        reason = 'トレンド逆行はサイズを落とす';
+        cls = 'warn';
+      } else if (rrNum == null || Number.isNaN(rrNum)) {
+        signal = '条件入力待ち';
+        reason = 'エントリー・損切り・利確を入れてね';
+      } else if (direction === '売り目線' && status === '戻り待ち' && rrNum >= 1.8 && checks >= 5 && nearAlert) {
+        signal = '強い戻り売り候補';
+        reason = '戻り待ち + 1.8R以上 + チェック5個以上 + アラート帯';
+        cls = 'profit';
+      } else if (direction === '売り目線' && status === '戻り待ち' && rrNum >= 1.5 && checks >= 4) {
+        signal = '戻り売り候補';
+        reason = '売り目線 + 戻り待ち + 1.5R以上 + 条件4個以上';
+        cls = 'profit';
+      } else if (direction === '買い目線' && status === '押し目待ち' && rrNum >= 1.8 && checks >= 5 && nearAlert) {
+        signal = '強い押し目買い候補';
+        reason = '押し目待ち + 1.8R以上 + チェック5個以上 + アラート帯';
+        cls = 'profit';
+      } else if (direction === '買い目線' && status === '押し目待ち' && rrNum >= 1.5 && checks >= 4) {
+        signal = '押し目買い候補';
+        reason = '買い目線 + 押し目待ち + 1.5R以上 + 条件4個以上';
+        cls = 'profit';
+      } else if ((status === 'トレンド継続') && rrNum >= 1.2 && checks >= 3) {
+        signal = '継続候補';
+        reason = '流れはあるが深追いは注意';
+        cls = 'profit';
+      } else if (rrNum < 1.0 || checks <= 2) {
+        signal = '見送り候補';
+        reason = 'R不足か根拠不足';
+        cls = 'loss';
+      } else {
+        signal = '待って良し';
+        reason = 'あと1つ2つ条件がほしい';
+      }
+
+      signalView.textContent = signal;
+      signalView.className = cls;
+      signalReason.textContent = `チェック ${checks}/6 ・ ${reason}`;
+    }
+
+    function saveScenario() {
+      const data = {
+        pair: $('pair').value,
+        interval: $('interval').value,
+        status: $('status').value,
+        direction: $('direction').value,
+        entry: $('entry').value,
+        sl: $('sl').value,
+        tp: $('tp').value,
+        lot: $('lot').value,
+        memo: $('memo').value,
+        alert1: $('alert1').value,
+        alert2: $('alert2').value,
+        startingBalance: $('startingBalance').value,
+        ckTrend: $('ckTrend').checked,
+        ckLevel: $('ckLevel').checked,
+        ckShape: $('ckShape').checked,
+        ckTiming: $('ckTiming').checked,
+        ckBand: $('ckBand').checked,
+        ckRsi: $('ckRsi').checked,
+        swingHigh: $('swingHigh').value,
+        swingLow: $('swingLow').value,
+        savedAt: new Date().toLocaleString('ja-JP')
+      };
+      localStorage.setItem('fx-scenario', JSON.stringify(data));
+      calcMetrics();
+      alert('シナリオを保存しました');
+    }
+
+    function loadScenario() {
+      const raw = localStorage.getItem('fx-scenario');
+      if (!raw) { calcMetrics(); return; }
+      const d = JSON.parse(raw);
+      for (const key of ['pair','interval','status','direction','entry','sl','tp','lot','memo','alert1','alert2','startingBalance','swingHigh','swingLow']) {
+        if ($(key) && d[key] != null) $(key).value = d[key];
+      }
+      ['ckTrend','ckLevel','ckShape','ckTiming','ckBand','ckRsi'].forEach(key => {
+        if ($(key) && d[key] != null) $(key).checked = !!d[key];
+      });
+      calcMetrics();
+    }
+
+    function calcFib() {
+      const high = numberOrNull($('swingHigh').value);
+      const low = numberOrNull($('swingLow').value);
+      const box = $('fibResults');
+      box.innerHTML = '';
+      if (high == null || low == null || high === low) return;
+      const diff = high - low;
+      const levels = [0.236, 0.382, 0.5, 0.618, 0.786];
+      levels.forEach(level => {
+        const price = high > low ? high - diff * level : high + Math.abs(diff) * level;
+        const div = document.createElement('div');
+        div.className = 'fib-item';
+        div.innerHTML = `<span>${(level*100).toFixed(1)}%</span>${price.toFixed(3)}`;
+        box.appendChild(div);
+      });
+    }
+
+
+    function getStartingBalance() {
+      const v = numberOrNull($('startingBalance').value);
+      return v == null ? 0 : v;
+    }
+
+    function formatJPY(value) {
+      const num = Number(value || 0);
+      return num.toLocaleString('ja-JP');
+    }
+
+    function tradeDateKey(value) {
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return null;
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function getDailyPnLMap(rows) {
+      const map = {};
+      rows.forEach(row => {
+        const key = tradeDateKey(row.isoDate || row.date);
+        if (!key) return;
+        const pnl = Number(row.pnlAmount || 0);
+        map[key] = (map[key] || 0) + pnl;
+      });
+      return map;
+    }
+
+    function calcBalanceBeforeMonth(rows, year, monthIndex) {
+      const start = getStartingBalance();
+      const dailyMap = getDailyPnLMap(rows);
+      let balance = start;
+      Object.keys(dailyMap).sort().forEach(key => {
+        const d = new Date(key + 'T00:00:00');
+        if (d.getFullYear() < year || (d.getFullYear() === year && d.getMonth() < monthIndex)) {
+          balance += dailyMap[key];
+        }
+      });
+      return balance;
+    }
+
+    function renderBalanceCalendar(rows) {
+      const grid = $('balanceCalendar');
+      const current = new Date(calendarDate.getFullYear(), calendarDate.getMonth(), 1);
+      const year = current.getFullYear();
+      const monthIndex = current.getMonth();
+      const firstDay = new Date(year, monthIndex, 1);
+      const lastDay = new Date(year, monthIndex + 1, 0);
+      const startWeekday = firstDay.getDay();
+      const daysInMonth = lastDay.getDate();
+      const dailyMap = getDailyPnLMap(rows);
+
+      $('monthLabelView').textContent = `${year}/${String(monthIndex + 1).padStart(2, '0')}`;
+
+      let runningBalance = calcBalanceBeforeMonth(rows, year, monthIndex);
+      const openingBalance = runningBalance;
+      grid.innerHTML = '';
+
+      ['日','月','火','水','木','金','土'].forEach(dow => {
+        const el = document.createElement('div');
+        el.className = 'dow';
+        el.textContent = dow;
+        grid.appendChild(el);
+      });
+
+      for (let i = 0; i < startWeekday; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'day-cell empty';
+        grid.appendChild(empty);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const key = `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const pnl = dailyMap[key] || 0;
+        runningBalance += pnl;
+
+        const cell = document.createElement('div');
+        cell.className = 'day-cell';
+        const cls = pnl > 0 ? 'profit' : pnl < 0 ? 'loss' : '';
+        const pnlText = pnl === 0 ? '±0' : (pnl > 0 ? '+' : '') + formatJPY(pnl);
+        cell.innerHTML = `
+          <div class="day-top">
+            <div class="day-num">${day}</div>
+            <div class="${cls}" style="font-size:11px;">${pnlText}</div>
+          </div>
+          <div>
+            <div class="day-balance ${runningBalance >= openingBalance ? 'profit' : 'loss'}">${formatJPY(runningBalance)}</div>
+            <div class="day-note">残高</div>
+          </div>
+        `;
+        grid.appendChild(cell);
+      }
+
+      const monthDelta = runningBalance - openingBalance;
+      $('monthEndBalanceView').textContent = formatJPY(runningBalance);
+      $('monthDeltaView').textContent = (monthDelta > 0 ? '+' : '') + formatJPY(monthDelta);
+      $('monthDeltaView').className = monthDelta > 0 ? 'profit' : monthDelta < 0 ? 'loss' : '';
+    }
+
+    function renderTradeStats(rows) {
+      const count = rows.length;
+      const wins = rows.filter(r => (r.resultRNum ?? r.rrNum) > 0).length;
+      const avgR = count ? rows.reduce((s, r) => s + (r.resultRNum ?? r.rrNum ?? 0), 0) / count : 0;
+      $('tradeCountView').textContent = String(count);
+      $('winRateView').textContent = count ? ((wins / count) * 100).toFixed(0) + '%' : '0%';
+      $('avgRView').textContent = avgR.toFixed(2) + 'R';
+    }
+
+    function loadTrades() {
+      const rows = JSON.parse(localStorage.getItem('fx-trades') || '[]');
+      const tbody = $('tradeTable');
+      tbody.innerHTML = '';
+      renderTradeStats(rows);
+      renderBalanceCalendar(rows);
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="color:#9fb0cf;">まだ履歴はありません</td></tr>';
+        return;
+      }
+      rows.slice().reverse().forEach(row => {
+        const tr = document.createElement('tr');
+        const cls = (row.resultRNum ?? row.rrNum) > 0 ? 'profit' : (row.resultRNum ?? row.rrNum) < 0 ? 'loss' : 'warn';
+        tr.innerHTML = `
+          <td>${row.date}</td>
+          <td><strong>${row.pairLabel}</strong><br><span class="pill">${row.direction}</span></td>
+          <td class="${cls}">${row.resultR || row.rr}</td>
+          <td>${row.memo || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addTrade() {
+      const pairLabel = $('pair').selectedOptions[0].textContent;
+      const direction = $('direction').value;
+      const entry = numberOrNull($('entry').value);
+      const sl = numberOrNull($('sl').value);
+      const tp = numberOrNull($('tp').value);
+      if (entry == null || sl == null || tp == null) {
+        alert('エントリー・損切り・利確を入れてください');
+        return;
+      }
+      const risk = Math.abs(entry - sl);
+      const reward = Math.abs(entry - tp);
+      const rrNum = risk > 0 ? reward / risk : 0;
+      const rr = rrNum.toFixed(2) + 'R';
+      const result = window.prompt('結果Rを入れてね。利確なら 2、損切りなら -1、建値なら 0', rrNum.toFixed(2));
+      const resultRNum = result === null || result === '' ? rrNum : Number(result);
+      const pnl = window.prompt('このトレードの損益金額を入れてね。例: 3500 / -1200', '0');
+      const pnlAmount = pnl === null || pnl === '' ? 0 : Number(pnl);
+      const now = new Date();
+      const rows = JSON.parse(localStorage.getItem('fx-trades') || '[]');
+      rows.push({
+        date: now.toLocaleString('ja-JP'),
+        isoDate: now.toISOString(),
+        pairLabel,
+        direction,
+        rr,
+        rrNum,
+        resultR: (Number.isFinite(resultRNum) ? resultRNum.toFixed(2) : rrNum.toFixed(2)) + 'R',
+        resultRNum: Number.isFinite(resultRNum) ? resultRNum : rrNum,
+        pnlAmount: Number.isFinite(pnlAmount) ? pnlAmount : 0,
+        memo: $('memo').value.trim()
+      });
+      localStorage.setItem('fx-trades', JSON.stringify(rows));
+      loadTrades();
+      alert('履歴に追加しました');
+    }
+
+    function clearTrades() {
+      if (!confirm('履歴を全て消しますか？')) return;
+      localStorage.removeItem('fx-trades');
+      loadTrades();
+    }
+
+    function clearFib() {
+      $('fibResults').innerHTML = '';
+      $('swingHigh').value = '';
+      $('swingLow').value = '';
+    }
+
+    ['entry','sl','tp','status','direction','alert1','alert2'].forEach(id => $(id).addEventListener('input', calcMetrics));
+    ['ckTrend','ckLevel','ckShape','ckTiming','ckBand','ckRsi'].forEach(id => $(id).addEventListener('change', calcMetrics));
+    $('saveScenario').addEventListener('click', saveScenario);
+    $('reloadChart').addEventListener('click', createWidget);
+    $('calcFib').addEventListener('click', calcFib);
+    $('clearFib').addEventListener('click', clearFib);
+    $('addTrade').addEventListener('click', addTrade);
+    $('clearTrades').addEventListener('click', clearTrades);
+    $('pair').addEventListener('change', createWidget);
+    $('interval').addEventListener('change', createWidget);
+    $('startingBalance').addEventListener('input', () => {
+      const rows = JSON.parse(localStorage.getItem('fx-trades') || '[]');
+      renderBalanceCalendar(rows);
+    });
+    $('prevMonth').addEventListener('click', () => {
+      calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1);
+      renderBalanceCalendar(JSON.parse(localStorage.getItem('fx-trades') || '[]'));
+    });
+    $('nextMonth').addEventListener('click', () => {
+      calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1);
+      renderBalanceCalendar(JSON.parse(localStorage.getItem('fx-trades') || '[]'));
+    });
+
+    loadScenario();
+    createWidget();
+    loadTrades();
+  </script>
+</body>
+</html>
